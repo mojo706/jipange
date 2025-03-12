@@ -1,0 +1,23 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Sample data files
+data/ *.csv
+
+# Log files
+*.log
+
+#IDE specific files
+.vscode/
+.idea/
+*sublime-workspace
+
+#Personal configuration files
+config.ini
