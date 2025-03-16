@@ -9,7 +9,7 @@ A Python-based personal finance tracking application that helps manage transacti
 - Financial reporting and visualization
 - Data import/export capabilities
 
-## Instalation
+## Installation
 
 1. Clone the repository:
    \`\`\`
