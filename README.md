@@ -12,16 +12,16 @@ A Python-based personal finance tracking application that helps manage transacti
 ## Installation
 
 1. Clone the repository:
-   \`\`\`
-   git clone <repository-url>
+   ```
+   git clone git@github.com:mojo706/jipange.git
    cd jipange
-   \`\`\`
+   ```
 
 
 2. Run the application:
-   \`\`\`
+   ```
    python main.py
-   \`\`\`
+   ```
 
 
 ## Usage
@@ -36,9 +36,9 @@ Follow the on-screen prompts to:
 
 This project follows a structured development process with Git. To contribute:
 
-1. Create a feature branch: \`git checkout -b feature/new-feature\`
-2. Make your changes and commit: \`git commit -m "Add new feature"\`
-3. Push to the branch: \`git push origin feature/new-feature\`
+1. Create a feature branch: `git checkout -b feature/new-feature`
+2. Make your changes and commit: `git commit -m "Add new feature"`
+3. Push to the branch: `git push origin feature/new-feature`
 
 ## License
 
