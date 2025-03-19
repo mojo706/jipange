@@ -9,7 +9,7 @@ env/
 ENV/
 
 # Sample data files
-data/ *.csv
+data/*.csv
 
 # Log files
 *.log
