@@ -2,12 +2,14 @@ import os
 import csv
 import uuid
 from datetime import datetime
+from category_manager import CategoryManager
 
 class TransactionManager:
     def  __init__(self, data_dir="data"):
         """Initialize the transaction manager."""
         self.data_dir = data_dir
         self.transactions_file = os.path.join(data_dir, "transactions.csv")
+        self.category_manager = CategoryManager(data_dir)
         self.ensure_data_directory()
         self.initialize_transactions_file()
 
@@ -47,6 +49,14 @@ class TransactionManager:
             if not category or not account:
                 return False, "Category and account are empty."
             
+            # Check if the transaction exists and matches the transaction type
+            categories = self.category_manager.get_categories(transaction_type)
+            category_exists = any(c['name'].lower() == category.lower() for c in categories)
+
+            if not category_exists:
+                # Ask the category manager to add this as a new category
+                self.category_manager.add_category(category, transaction_type)
+            
             #Generate unique ID
             transaction_id = str(uuid.uuid4())
 
@@ -85,6 +95,7 @@ class TransactionManager:
                     #Convert amount to float for calculations
                     row['amount'] = float(row['amount'])
                     transactions.append(row)
+
             return transactions
         except Exception as e:
             print(f"Error retrieving transactions: {str(e)}")
@@ -130,11 +141,19 @@ class TransactionManager:
                         transaction[field] = float(new_value)
                     elif field == "transaction_type" and new_value not in ["income", "expense"]:
                         return False, "Transaction type must be either 'income' or 'expense'"
-                    else:
-                        transaction[field] = new_value
+                    elif field == "category":
+                        # Check if the category exists and matches the transaction type
+                        categories = self.category_manager.get_categories(transaction['transaction_type'])
+                        category_exists = any(c['name'].lower() == new_value.lower() for c in categories)
 
+                        if not category_exists:
+                            # Ask the category manager to add this as a new category
+                            self.category_manager.add_category(new_value, transaction['transaction_type'])
+
+                    transaction[field] = new_value
                     found = True
                     break
+
             if not found:
                 return False, "Transaction not found"
 
@@ -164,4 +183,46 @@ class TransactionManager:
                     break
         
         return result
+    
+    def get_transaction_summary(self, start_date=None, end_date=None):
+        """Get a summary of transactions withing a date range"""
+        transactions = self.get_transactions()
+        filtered_transactions = []
+
+        # Filter by date if provided
+        for transaction in transactions:
+            transaction_date = datetime.strptime(transaction['date'], "%Y-%m-%/d")
+
+            if start_date and end_date:
+                start = datetime.strptime(start_date, "%Y-%m-%/d")
+                end  = datetime.strptime(end_date, "%Y-%m-%/d")
+                if start <= transaction_date <= end:
+                    filtered_transactions.append(transaction)
+            elif start_date:
+                start = datetime.strptime(start_date, "%Y-%m-%/d")
+                if start <= transaction_date:
+                    filtered_transactions.append(transaction)
+            else:
+                filtered_transactions.append(transaction)
+
+        # Calculate summary statistics
+        total_income = sum(t['amount'] for t in filtered_transactions if t['transaction_type'] == 'income')
+        total_expenses = sum(t['amount'] for t in filtered_transactions if t['transaction_type'] == 'expense')
+        net = total_income - total_expenses
+
+        # Group by category
+        categories = {}
+        for transaction in filtered_transactions:
+            category = transaction['category']
+            if category not in categories:
+                categories[category] = 0
+            categories[category] += transaction['amount']
+        
+        return {
+            'total_income': total_income,
+            'total_expenses': total_expenses,
+            'net': net,
+            'categories': categories,
+            'transaction_count': len(filtered_transactions)
+        }
 
